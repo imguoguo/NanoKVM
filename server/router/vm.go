@@ -63,5 +63,9 @@ func vmRouter(r *gin.Engine) {
 
 	api.POST("/vm/tls", service.SetTls) // enable/disable TLS
 
+	api.GET("/vm/autostart", service.GetAutostart)
+	api.DELETE("/vm/autostart", service.DeleteAutostart)
+	api.POST("/vm/autostart", service.UploadAutostart)
+
 	api.POST("/vm/system/reboot", service.Reboot) // reboot system
 }

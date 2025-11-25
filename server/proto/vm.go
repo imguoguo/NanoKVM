@@ -55,6 +55,20 @@ type DeleteScriptReq struct {
 	Name string `validate:"required"`
 }
 
+// autostart
+type GetAutostartRsp struct {
+	Files []string `json:"files"`
+}
+
+type UploadAutostartReq struct {
+	File    string `json:"file"`
+	Content string `json:"content"`
+}
+
+type DeleteAutostartReq struct {
+	Name string `validate:"required"`
+}
+
 type GetVirtualDeviceRsp struct {
 	Network bool `json:"network"`
 	Disk    bool `json:"disk"`
