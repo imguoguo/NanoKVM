@@ -7,6 +7,7 @@ import * as api from '@/api/hid.ts';
 import { hidModeAtom } from '@/jotai/mouse.ts';
 
 import { Advanced } from './advanced';
+import { Autostart } from './autostart.tsx';
 import { Hdmi } from './hdmi.tsx';
 import { HidMode } from './hid-mode.tsx';
 import { Mdns } from './mdns.tsx';
@@ -52,10 +53,16 @@ export const Device = () => {
         {!disableMenus.includes('device:oled') && <Oled />}
         {!disableMenus.includes('device:wifi') && <Wifi />}
         {!disableMenus.includes('device:mouse') && <MouseJiggler />}
-
+        
       </div>
+
       <Divider />
 
+      <div className="flex flex-col space-y-6">
+      {!disableMenus.includes('device:autostart') && <Autostart />}
+      </div>
+
+      <Divider />
       <Advanced disable={disableMenus.includes("device:advance")} />
       <Divider />
 
