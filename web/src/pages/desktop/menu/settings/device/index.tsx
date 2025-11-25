@@ -52,10 +52,10 @@ export const Device = () => {
         {!disableMenus.includes('device:oled') && <Oled />}
         {!disableMenus.includes('device:wifi') && <Wifi />}
         {!disableMenus.includes('device:mouse') && <MouseJiggler />}
-
+        
       </div>
-      <Divider />
 
+      <Divider />
       <Advanced disable={disableMenus.includes("device:advance")} />
       <Divider />
 

@@ -164,3 +164,21 @@ export function setTLS(enabled: boolean) {
 export function reboot() {
   return http.post('/api/vm/system/reboot');
 }
+
+// autoboot
+export function getAutoboot() {
+  return http.get('/api/vm/autoboot');
+}
+
+export function addAutobootCommand(command: string) {
+  return http.post('/api/vm/autoboot', { command });
+}
+
+export function deleteAutobootCommand(command: string) {
+  return http.request({
+    method: 'DELETE',
+    url: '/api/vm/autoboot',
+    data: { command }
+  });
+}
+
