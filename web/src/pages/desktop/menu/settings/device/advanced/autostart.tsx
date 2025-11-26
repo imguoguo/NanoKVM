@@ -33,6 +33,7 @@ export const Autostart = () => {
     {
       title: 'Action',
       key: 'action',
+      width: '20%',
       render: (_, record) => (
         <>
           <Button
