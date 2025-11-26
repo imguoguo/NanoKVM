@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Table, Input, Modal, Popconfirm, Space } from 'antd';
-import type { TableProps } from 'antd/es/table';
+import { Button, Input, Modal, Popconfirm, Space, Table } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import type { TableProps } from 'antd/es/table';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +28,7 @@ export const Autostart = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      key: 'name',
+      key: 'name'
     },
     {
       title: 'Action',
@@ -36,11 +36,7 @@ export const Autostart = () => {
       width: '20%',
       render: (_, record) => (
         <>
-          <Button
-            type="text"
-            icon={<EditOutlined />}
-            onClick={() => editAutostart(record.name)}
-          />
+          <Button type="text" icon={<EditOutlined />} onClick={() => editAutostart(record.name)} />
 
           <Popconfirm
             title={t('settings.device.autostart.deleteConfirm')}
@@ -51,13 +47,12 @@ export const Autostart = () => {
             <Button type="text" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </>
-      ),
+      )
     }
   ];
 
   useEffect(() => {
     setIsKeyboardEnable(false);
-    setAutostartItems([]);
     getAutostart();
 
     return () => {
@@ -71,13 +66,11 @@ export const Autostart = () => {
         console.log(rsp.msg);
         return;
       }
-
+      setAutostartItems([]);
       if (rsp.data?.files?.length > 0) {
         rsp.data.files.forEach((item: string) => {
           setAutostartItems((prevItems) => [...prevItems, { name: item }]);
         });
-      } else {
-        setAutostartItems([]);
       }
     });
   }
@@ -170,7 +163,9 @@ export const Autostart = () => {
         </Space>
       </Modal>
 
-      <Table<AutostartItem> columns={autostartColumns} dataSource={autostartItems} />
+      {autostartItems.length > 0 && (
+        <Table<AutostartItem> columns={autostartColumns} dataSource={autostartItems} />
+      )}
     </div>
   );
 };
