@@ -91,23 +91,24 @@ export const Autostart = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <span className="text-base font-medium">{t('settings.device.autostart.title')}</span>
-        <span className="text-xs text-neutral-500">
-          {t('settings.device.autostart.description')}
-        </span>
-      </div>
-
-      <div>
-        <Button
-          type="primary"
-          onClick={() => {
-            setIsEditAutostartOpen(true);
-          }}
-          icon={<PlusOutlined />}
-        >
-          {t('settings.device.autostart.new')}
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <span>{t('settings.device.autostart.title')}</span>
+          <span className="text-xs text-neutral-500">
+            {t('settings.device.autostart.description')}
+          </span>
+        </div>
+        <div>
+          <Button
+            type="text"
+            onClick={() => {
+              setIsEditAutostartOpen(true);
+            }}
+            icon={<PlusOutlined />}
+          >
+            {t('settings.device.autostart.new')}
+          </Button>
+        </div>
       </div>
 
       <Modal

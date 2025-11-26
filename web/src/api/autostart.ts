@@ -5,13 +5,7 @@ export function getAutostart() {
 }
 
 export function uploadAutostart(name: string, content: string) {
-  return http.request({
-    url: '/api/vm/autostart/' + name,
-    method: 'put',
-    data: {
-      content,
-    },
-  });
+  return http.post('/api/vm/autostart/' + name, { content });
 }
 
 export function deleteAutostart(name: string) {
