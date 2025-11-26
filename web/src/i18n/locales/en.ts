@@ -276,6 +276,16 @@ const en = {
         hdmi: {
           description: 'Enable HDMI/monitor output'
         },
+        autostart: {
+          title: 'Autostart Scripts Settings',
+          description: 'Manage scripts that run automatically on system startup',
+          upload: 'Upload',
+          delete_confirm: 'Are you sure you want to delete this file?',
+          yes: 'Yes',
+          no: 'No',
+          scriptName: 'Autostart Script Name',
+          scriptContent: 'Autostart Script Content'
+        },
         hidOnly: 'HID-Only Mode',
         disk: 'Virtual Disk',
         diskDesc: 'Mount virtual U-disk on the remote host',

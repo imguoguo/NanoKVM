@@ -72,20 +72,23 @@ export const Autostart = () => {
 
     return (
         <>
-            Autostart Settings
+            <div className="flex flex-col">
+                <span>{t('settings.device.autostart.title')}</span>
+                <span className="text-xs text-neutral-500">{t('settings.device.autostart.description')}</span>
+            </div>
 
             <div>
                 <Button onClick={() => {setIsNewAutostartOpen(true)}} icon={<PlusOutlined />}>
                     {t('settings.device.autostart.upload')}
                 </Button>
                 <Modal
-          title="Basic Modal"
-          open={isNewAutostartOpen}
-          onOk={uploadAutostart}
-          onCancel={() => setIsNewAutostartOpen(false)}>
-              <Input placeholder="Autostart Script Name" onChange={(e) => setNewAutostartName(e.target.value)} />
-              <TextArea placeholder="Autostart Script Content" onChange={(e) => setNewAutostartContent(e.target.value)} />
-          </Modal>
+                    title={t('settings.device.autostart.title')}
+                    open={isNewAutostartOpen}
+                    onOk={uploadAutostart}
+                    onCancel={() => setIsNewAutostartOpen(false)}>
+                        <Input placeholder={t('settings.device.autostart.scriptName')} onChange={(e) => setNewAutostartName(e.target.value)} />
+                        <TextArea placeholder={t('settings.device.autostart.scriptContent')} onChange={(e) => setNewAutostartContent(e.target.value)} />
+                    </Modal>
 
                 {autostartItems.map((item) => (
                     <div key={item}>{item} 
@@ -93,8 +96,8 @@ export const Autostart = () => {
                     <Popconfirm
                         title={t('settings.device.autostart.delete_confirm')}
                         onConfirm={() => deleteAutostart(item)}
-                        okText={t('common.yes')}
-                        cancelText={t('common.no')}
+                        okText={t('settings.device.autostart.yes')}
+                        cancelText={t('settings.device.autostart.no')}
                     >
                             <DeleteOutlined />
                     </Popconfirm>
