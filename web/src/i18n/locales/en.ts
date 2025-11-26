@@ -284,7 +284,8 @@ const en = {
           yes: 'Yes',
           no: 'No',
           scriptName: 'Autostart Script Name',
-          scriptContent: 'Autostart Script Content'
+          scriptContent: 'Autostart Script Content',
+          settings: 'Settings'
         },
         hidOnly: 'HID-Only Mode',
         disk: 'Virtual Disk',

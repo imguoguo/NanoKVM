@@ -252,7 +252,8 @@ const zh = {
           yes: '是',
           no: '否',
           scriptName: '自动启动脚本名称',
-          scriptContent: '自动启动脚本内容'
+          scriptContent: '自动启动脚本内容',
+          settings: '设置'
         },
         hidOnly: 'HID-Only 模式',
         disk: '虚拟U盘',

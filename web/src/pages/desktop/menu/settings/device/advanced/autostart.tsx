@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Input, Modal, Popconfirm, Space, Table } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import type { TableProps } from 'antd/es/table';
@@ -19,6 +19,7 @@ export const Autostart = () => {
   const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
 
   const [isEditAutostartOpen, setIsEditAutostartOpen] = useState(false);
+  const [isManageAutostartOpen, setIsManageAutostartOpen] = useState(false);
   const [isAutostartNameEditable, setIsAutostartNameEditable] = useState(true);
   const [autostartItems, setAutostartItems] = useState<AutostartItem[]>([]);
   const [autostartName, setAutostartName] = useState('');
@@ -33,7 +34,6 @@ export const Autostart = () => {
     {
       title: 'Action',
       key: 'action',
-      width: '20%',
       render: (_, record) => (
         <>
           <Button type="text" icon={<EditOutlined />} onClick={() => editAutostart(record.name)} />
@@ -133,12 +133,10 @@ export const Autostart = () => {
           <Button
             type="text"
             onClick={() => {
-              setIsEditAutostartOpen(true);
+              setIsManageAutostartOpen(true);
             }}
-            icon={<PlusOutlined />}
-          >
-            {t('settings.device.autostart.new')}
-          </Button>
+            icon={<SettingOutlined />}
+          />
         </div>
       </div>
 
@@ -163,9 +161,25 @@ export const Autostart = () => {
         </Space>
       </Modal>
 
-      {autostartItems.length > 0 && (
+      <Modal
+        open={isManageAutostartOpen}
+        footer=""
+        onCancel={() => setIsManageAutostartOpen(false)}
+        title={t('settings.device.autostart.title')}
+        >
+          <div className="flex justify-end">
+          <Button
+            type="text"
+            onClick={() => {
+              setIsEditAutostartOpen(true);
+            }}
+            icon={<PlusOutlined />}
+          >
+            {t('settings.device.autostart.new')}
+          </Button>
+        </div>
         <Table<AutostartItem> columns={autostartColumns} dataSource={autostartItems} />
-      )}
+      </Modal>
     </div>
   );
 };
