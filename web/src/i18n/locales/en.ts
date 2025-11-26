@@ -279,8 +279,8 @@ const en = {
         autostart: {
           title: 'Autostart Scripts Settings',
           description: 'Manage scripts that run automatically on system startup',
-          upload: 'Upload',
-          delete_confirm: 'Are you sure you want to delete this file?',
+          new: 'New',
+          deleteConfirm: 'Are you sure you want to delete this file?',
           yes: 'Yes',
           no: 'No',
           scriptName: 'Autostart Script Name',

@@ -1,109 +1,165 @@
-import * as api from '@/api/autostart.ts';
 import { useEffect, useState } from 'react';
-import { Button, Modal, Input, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import TextArea from 'antd/es/input/TextArea'
-import {isKeyboardEnableAtom} from '@/jotai/keyboard.ts';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Input, Modal, Popconfirm, Space } from 'antd';
+import TextArea from 'antd/es/input/TextArea';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
+import * as api from '@/api/autostart.ts';
+import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts';
 
 export const Autostart = () => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
-    const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
+  const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isNewAutostartOpen, setIsNewAutostartOpen] = useState(false);
-    const [autostartItems, setAutostartItems] = useState<string[]>([]);
-    const [newAutostartName, setNewAutostartName] = useState('');
-    const [newAutostartContent, setNewAutostartContent] = useState('');
+  const [isEditAutostartOpen, setIsEditAutostartOpen] = useState(false);
+  const [isAutostartNameEditable, setIsAutostartNameEditable] = useState(true);
+  const [autostartItems, setAutostartItems] = useState<string[]>([]);
+  const [autostartName, setAutostartName] = useState('');
+  const [autostartContent, setAutostartContent] = useState('');
 
-    useEffect(() => {
-        setIsKeyboardEnable(false);
-        
-        getAutostart();
+  useEffect(() => {
+    setIsKeyboardEnable(false);
 
-        return () => {
-            setIsKeyboardEnable(true);
-        }
-    }, []);
+    getAutostart();
 
-    function getAutostart() {
-        api.getAutostart().then((rsp) => {
-            if (rsp.code !== 0) {
-                console.log(rsp.msg);
-                return;
-            }
+    return () => {
+      setIsKeyboardEnable(true);
+    };
+  }, []);
 
-            if (rsp.data?.files?.length > 0) {
-                setAutostartItems(rsp.data.files);
-            } else {
-                setAutostartItems([]);
-            }
-        });
-    }
+  function getAutostart() {
+    api.getAutostart().then((rsp) => {
+      if (rsp.code !== 0) {
+        console.log(rsp.msg);
+        return;
+      }
 
-    function uploadAutostart() {
-        api.uploadAutostart(newAutostartName, newAutostartContent).then((rsp) => {
-            if (rsp.code !== 0) {
-                console.log(rsp.msg);
-                return;
-            }
+      if (rsp.data?.files?.length > 0) {
+        setAutostartItems(rsp.data.files);
+      } else {
+        setAutostartItems([]);
+      }
+    });
+  }
 
-            getAutostart();
-            setNewAutostartContent('');
-            setNewAutostartName('');
-            setIsNewAutostartOpen(false);
-        });
-    }
+  function uploadAutostart() {
+    api.uploadAutostart(autostartName, autostartContent).then((rsp) => {
+      if (rsp.code !== 0) {
+        console.log(rsp.msg);
+        return;
+      }
 
-    function deleteAutostart(name: string) {
-        api.deleteAutostart(name).then((rsp) => {
-            if (rsp.code !== 0) {
-                console.log(rsp.msg);
-                return;
-            }
-            
-            getAutostart();
-        }
-        );
-    }
+      getAutostart();
+      setAutostartContent('');
+      setAutostartName('');
+      setIsEditAutostartOpen(false);
+    });
+  }
 
-    return (
-        <>
-            <div className="flex flex-col">
-                <span>{t('settings.device.autostart.title')}</span>
-                <span className="text-xs text-neutral-500">{t('settings.device.autostart.description')}</span>
+  function editAutostart(name: string) {
+    api.getAutostartContent(name).then((rsp) => {
+      if (rsp.code !== 0) {
+        console.log(rsp.msg);
+        return;
+      }
+      setAutostartName(name);
+      setAutostartContent(rsp.data);
+      setIsEditAutostartOpen(true);
+      setIsAutostartNameEditable(false);
+    });
+  }
+
+  function closeEditAutostart() {
+    setAutostartContent('');
+    setAutostartName('');
+    setIsAutostartNameEditable(true);
+    setIsEditAutostartOpen(false);
+  }
+
+  function deleteAutostart(name: string) {
+    api.deleteAutostart(name).then((rsp) => {
+      if (rsp.code !== 0) {
+        console.log(rsp.msg);
+        return;
+      }
+
+      getAutostart();
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1">
+        <span className="text-base font-medium">{t('settings.device.autostart.title')}</span>
+        <span className="text-xs text-neutral-500">
+          {t('settings.device.autostart.description')}
+        </span>
+      </div>
+
+      <div>
+        <Button
+          type="primary"
+          onClick={() => {
+            setIsEditAutostartOpen(true);
+          }}
+          icon={<PlusOutlined />}
+        >
+          {t('settings.device.autostart.new')}
+        </Button>
+      </div>
+
+      <Modal
+        title={t('settings.device.autostart.title')}
+        open={isEditAutostartOpen}
+        onOk={uploadAutostart}
+        onCancel={closeEditAutostart}
+      >
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Input
+            placeholder={t('settings.device.autostart.scriptName')}
+            value={autostartName}
+            disabled={!isAutostartNameEditable}
+            onChange={(e) => setAutostartName(e.target.value)}
+          />
+          <TextArea
+            placeholder={t('settings.device.autostart.scriptContent')}
+            value={autostartContent}
+            onChange={(e) => setAutostartContent(e.target.value)}
+          />
+        </Space>
+      </Modal>
+
+      <div className="flex flex-col gap-2">
+        {autostartItems.map((item) => (
+          <Card key={item} size="small" className="transition-shadow hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm">{item}</span>
+              </div>
+
+              <Space>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => editAutostart(item)}
+                />
+
+                <Popconfirm
+                  title={t('settings.device.autostart.deleteConfirm')}
+                  onConfirm={() => deleteAutostart(item)}
+                  okText={t('settings.device.autostart.yes')}
+                  cancelText={t('settings.device.autostart.no')}
+                >
+                  <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+                </Popconfirm>
+              </Space>
             </div>
-
-            <div>
-                <Button onClick={() => {setIsNewAutostartOpen(true)}} icon={<PlusOutlined />}>
-                    {t('settings.device.autostart.upload')}
-                </Button>
-                <Modal
-                    title={t('settings.device.autostart.title')}
-                    open={isNewAutostartOpen}
-                    onOk={uploadAutostart}
-                    onCancel={() => setIsNewAutostartOpen(false)}>
-                        <Input placeholder={t('settings.device.autostart.scriptName')} onChange={(e) => setNewAutostartName(e.target.value)} />
-                        <TextArea placeholder={t('settings.device.autostart.scriptContent')} onChange={(e) => setNewAutostartContent(e.target.value)} />
-                    </Modal>
-
-                {autostartItems.map((item) => (
-                    <div key={item}>{item} 
-
-                    <Popconfirm
-                        title={t('settings.device.autostart.delete_confirm')}
-                        onConfirm={() => deleteAutostart(item)}
-                        okText={t('settings.device.autostart.yes')}
-                        cancelText={t('settings.device.autostart.no')}
-                    >
-                            <DeleteOutlined />
-                    </Popconfirm>
-                    </div>
-                ))}
-            </div>
-        </>
-    );
-}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
