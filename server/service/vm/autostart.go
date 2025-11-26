@@ -55,7 +55,7 @@ func (s *Service) UploadAutostart(c *gin.Context) {
 
 	target := fmt.Sprintf("%s/%s", autostartDirectory, fileName)
 
-	f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE, 0o755)
+	f, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o755)
 	if err != nil {
 		rsp.ErrRsp(c, -1, "create file fail")
 		return

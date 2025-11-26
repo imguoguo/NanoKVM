@@ -66,7 +66,7 @@ func vmRouter(r *gin.Engine) {
 	api.GET("/vm/autostart", service.GetAutostart)              // get autostart list
 	api.GET("/vm/autostart/:name", service.GetAutostartContent) // get autostart content
 	api.DELETE("/vm/autostart/:name", service.DeleteAutostart)  // delete autostart script
-	api.PUT("/vm/autostart/:name", service.UploadAutostart)     // upload autostart script
+	api.POST("/vm/autostart/:name", service.UploadAutostart)    // upload autostart script
 
 	api.POST("/vm/system/reboot", service.Reboot) // reboot system
 }
