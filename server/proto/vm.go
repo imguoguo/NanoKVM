@@ -61,12 +61,7 @@ type GetAutostartRsp struct {
 }
 
 type UploadAutostartReq struct {
-	File    string `json:"file"`
 	Content string `json:"content"`
-}
-
-type DeleteAutostartReq struct {
-	Name string `validate:"required"`
 }
 
 type GetVirtualDeviceRsp struct {

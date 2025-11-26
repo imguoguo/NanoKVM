@@ -42,6 +42,8 @@ func (s *Service) UploadAutostart(c *gin.Context) {
 	var req proto.UploadAutostartReq
 	var rsp proto.Response
 
+	fileName := c.Param("name")
+
 	if err := proto.ParseFormRequest(c, &req); err != nil {
 		rsp.ErrRsp(c, -1, "parse form request fail")
 		return
@@ -51,8 +53,9 @@ func (s *Service) UploadAutostart(c *gin.Context) {
 		_ = os.MkdirAll(autostartDirectory, 0o755)
 	}
 
-	target := fmt.Sprintf("%s/%s", autostartDirectory, req.File)
-	f, err := os.Create(target)
+	target := fmt.Sprintf("%s/%s", autostartDirectory, fileName)
+
+	f, err := os.OpenFile(target, os.O_RDWR|os.O_CREATE, 0o755)
 	if err != nil {
 		rsp.ErrRsp(c, -1, "create file fail")
 		return
@@ -65,27 +68,37 @@ func (s *Service) UploadAutostart(c *gin.Context) {
 		return
 	}
 
-	rsp.OkRspWithData(c, req.File)
+	rsp.OkRspWithData(c, fileName)
 
-	log.Debugf("upload autostart %s success", req.File)
+	log.Debugf("upload autostart %s success", fileName)
 }
 
 func (s *Service) DeleteAutostart(c *gin.Context) {
-	var req proto.DeleteAutostartReq
 	var rsp proto.Response
 
-	if err := proto.ParseFormRequest(c, &req); err != nil {
-		rsp.ErrRsp(c, -1, "parse form request fail")
-		return
-	}
+	fileName := c.Param("name")
 
-	file := fmt.Sprintf("%s/%s", autostartDirectory, req.Name)
+	file := fmt.Sprintf("%s/%s", autostartDirectory, fileName)
 	if err := os.Remove(file); err != nil {
-		log.Errorf("delete autostart file %s fail", req.Name)
+		log.Errorf("delete autostart file %s fail", fileName)
 		rsp.ErrRsp(c, -3, "remove file fail")
 		return
 	}
 
 	rsp.OkRsp(c)
-	log.Debugf("delete autostart %s success", req.Name)
+	log.Debugf("delete autostart %s success", fileName)
+}
+
+func (s *Service) GetAutostartContent(c *gin.Context) {
+	var rsp proto.Response
+	fileName := c.Param("name")
+	file := fmt.Sprintf("%s/%s", autostartDirectory, fileName)
+	content, err := os.ReadFile(file)
+	if err != nil {
+		rsp.ErrRsp(c, -1, "read file fail")
+		return
+	}
+
+	rsp.OkRspWithData(c, string(content))
+	log.Debugf("get autostart content %s success", fileName)
 }
