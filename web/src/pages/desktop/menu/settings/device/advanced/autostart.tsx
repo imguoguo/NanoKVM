@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Input, Modal, Popconfirm, Space } from 'antd';
+import { Button, Table, Input, Modal, Popconfirm, Space } from 'antd';
+import type { TableProps } from 'antd/es/table';
 import TextArea from 'antd/es/input/TextArea';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -9,19 +10,53 @@ import * as api from '@/api/autostart.ts';
 import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts';
 
 export const Autostart = () => {
+  interface AutostartItem {
+    name: string;
+  }
+
   const { t } = useTranslation();
 
   const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
 
   const [isEditAutostartOpen, setIsEditAutostartOpen] = useState(false);
   const [isAutostartNameEditable, setIsAutostartNameEditable] = useState(true);
-  const [autostartItems, setAutostartItems] = useState<string[]>([]);
+  const [autostartItems, setAutostartItems] = useState<AutostartItem[]>([]);
   const [autostartName, setAutostartName] = useState('');
   const [autostartContent, setAutostartContent] = useState('');
 
+  const autostartColumns: TableProps<AutostartItem>['columns'] = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <>
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={() => editAutostart(record.name)}
+          />
+
+          <Popconfirm
+            title={t('settings.device.autostart.deleteConfirm')}
+            onConfirm={() => deleteAutostart(record.name)}
+            okText={t('settings.device.autostart.yes')}
+            cancelText={t('settings.device.autostart.no')}
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </>
+      ),
+    }
+  ];
+
   useEffect(() => {
     setIsKeyboardEnable(false);
-
+    setAutostartItems([]);
     getAutostart();
 
     return () => {
@@ -37,7 +72,9 @@ export const Autostart = () => {
       }
 
       if (rsp.data?.files?.length > 0) {
-        setAutostartItems(rsp.data.files);
+        rsp.data.files.forEach((item: string) => {
+          setAutostartItems((prevItems) => [...prevItems, { name: item }]);
+        });
       } else {
         setAutostartItems([]);
       }
@@ -132,35 +169,7 @@ export const Autostart = () => {
         </Space>
       </Modal>
 
-      <div className="flex flex-col gap-2">
-        {autostartItems.map((item) => (
-          <Card key={item} size="small" className="transition-shadow hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{item}</span>
-              </div>
-
-              <Space>
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<EditOutlined />}
-                  onClick={() => editAutostart(item)}
-                />
-
-                <Popconfirm
-                  title={t('settings.device.autostart.deleteConfirm')}
-                  onConfirm={() => deleteAutostart(item)}
-                  okText={t('settings.device.autostart.yes')}
-                  cancelText={t('settings.device.autostart.no')}
-                >
-                  <Button type="text" size="small" danger icon={<DeleteOutlined />} />
-                </Popconfirm>
-              </Space>
-            </div>
-          </Card>
-        ))}
-      </div>
+      <Table<AutostartItem> columns={autostartColumns} dataSource={autostartItems} />
     </div>
   );
 };
