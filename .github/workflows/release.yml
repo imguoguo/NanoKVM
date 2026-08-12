@@ -16,7 +16,13 @@ on:
           - publish-stable
           - promote-stable
 
-# Latest is repository-global, so all Release changes must be serialized.
+# Publishing is one-shot and Release mutations are order-sensitive, so all
+# Release changes must be serialized.
+#
+# The repository-wide "Latest" badge is reserved for the flashable image
+# releases (vX.Y.Z, published manually), mirroring the NanoKVM-Pro repo:
+# application packages must never claim it, so users who follow
+# /releases/latest always land on an image.
 concurrency:
   group: nanokvm-github-release
   cancel-in-progress: false
@@ -139,10 +145,9 @@ jobs:
             '' \
             'To offer this build over OTA, publish it through the separate CDN workflow.')
 
-          STATE_ARGS=(--prerelease="$IS_PRERELEASE")
-          if [ "$IS_PRERELEASE" = true ]; then
-            STATE_ARGS+=(--latest=false)
-          fi
+          # --latest=false unconditionally: the Latest badge belongs to the
+          # image releases (see the comment at the top of this file).
+          STATE_ARGS=(--prerelease="$IS_PRERELEASE" --latest=false)
 
           ./scripts/verify-release-tag.sh "$TAG" "$SOURCE_SHA" >/dev/null
           gh release create "$TAG" \
@@ -151,6 +156,22 @@ jobs:
             --notes "$NOTES" \
             "${STATE_ARGS[@]}" \
             "$TARBALL" build/release/latest.json build/release/sha256.txt
+
+          # A repository without any stable release answers HTTP 404 here;
+          # that counts as "badge not claimed". Any other failure is fatal.
+          set +e
+          LATEST_OUTPUT=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name' 2>&1)
+          LATEST_STATUS=$?
+          set -e
+          if [ "$LATEST_STATUS" -ne 0 ] && ! grep -q 'HTTP 404' <<< "$LATEST_OUTPUT"; then
+            echo "::error::failed to query the repository Latest release"
+            printf '%s\n' "$LATEST_OUTPUT" >&2
+            exit 1
+          fi
+          if [ "$LATEST_STATUS" -eq 0 ] && [ "$LATEST_OUTPUT" = "$TAG" ]; then
+            echo "::error::release '$TAG' unexpectedly claimed the Latest badge"
+            exit 1
+          fi
 
       - name: Summary
         env:
@@ -216,15 +237,28 @@ jobs:
           ./scripts/verify-release-assets.sh build/release "$TAG"
 
           ./scripts/verify-release-tag.sh "$TAG" "$SOURCE_SHA" >/dev/null
-          gh release edit "$TAG" --prerelease=false --latest
+          # --latest=false: promotion turns the prerelease stable but must not
+          # move the Latest badge off the image releases (see top of file).
+          gh release edit "$TAG" --prerelease=false --latest=false
           ./scripts/verify-release-tag.sh "$TAG" "$SOURCE_SHA" >/dev/null
 
           if [ "$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" --jq '.prerelease')" != false ]; then
             echo "::error::release '$TAG' was not promoted"
             exit 1
           fi
-          if [ "$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name')" != "$TAG" ]; then
-            echo "::error::release '$TAG' was not marked latest"
+          # A repository without any stable release answers HTTP 404 here;
+          # that counts as "badge not claimed". Any other failure is fatal.
+          set +e
+          LATEST_OUTPUT=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name' 2>&1)
+          LATEST_STATUS=$?
+          set -e
+          if [ "$LATEST_STATUS" -ne 0 ] && ! grep -q 'HTTP 404' <<< "$LATEST_OUTPUT"; then
+            echo "::error::failed to query the repository Latest release"
+            printf '%s\n' "$LATEST_OUTPUT" >&2
+            exit 1
+          fi
+          if [ "$LATEST_STATUS" -eq 0 ] && [ "$LATEST_OUTPUT" = "$TAG" ]; then
+            echo "::error::release '$TAG' unexpectedly claimed the Latest badge"
             exit 1
           fi
 
